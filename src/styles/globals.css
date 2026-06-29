@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 224 32% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 32% 12%;
+    --primary: 164 85% 38%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 210 18% 92%;
+    --muted-foreground: 218 12% 43%;
+    --accent: 210 95% 45%;
+    --accent-foreground: 0 0% 100%;
+    --border: 214 18% 86%;
+    --input: 214 18% 86%;
+    --ring: 164 85% 38%;
+    --radius: 8px;
+  }
+
+  .dark {
+    --background: 222 23% 9%;
+    --foreground: 210 20% 96%;
+    --card: 222 20% 13%;
+    --card-foreground: 210 20% 96%;
+    --primary: 164 85% 42%;
+    --primary-foreground: 220 28% 8%;
+    --muted: 220 17% 18%;
+    --muted-foreground: 218 12% 68%;
+    --accent: 207 88% 58%;
+    --accent-foreground: 220 28% 8%;
+    --border: 220 16% 24%;
+    --input: 220 16% 24%;
+    --ring: 164 85% 42%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    margin: 0;
+    min-width: 360px;
+    overflow: hidden;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+  }
+}
+
+@layer components {
+  .panel {
+    @apply border bg-card text-card-foreground shadow-panel;
+    border-radius: var(--radius);
+  }
+
+  .scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.32) transparent;
+  }
+}

@@ -1,0 +1,25 @@
+[package]
+name = "tomato-todo"
+version = "0.1.0"
+description = "A lightweight native desktop productivity app."
+authors = ["Tomato Todo contributors"]
+license = "MIT"
+repository = ""
+edition = "2021"
+
+[lib]
+name = "tomato_todo_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.8", features = ["tray-icon"] }
+tauri-plugin-autostart = "2.5"
+tauri-plugin-global-shortcut = "2.3"
+tauri-plugin-notification = "2.3"
+tauri-plugin-single-instance = "2.3"
+tauri-plugin-window-state = "2.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
