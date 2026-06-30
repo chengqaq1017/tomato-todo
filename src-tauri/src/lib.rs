@@ -5,6 +5,11 @@ use tauri::{
 };
 use serde::{Deserialize, Serialize};
 use std::process::Command;
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+#[cfg(target_os = "windows")]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -42,7 +47,9 @@ $asTaskGeneric = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-O
 function Await-WinRt($operation, $type) {
   $method = $asTaskGeneric.MakeGenericMethod($type)
   $task = $method.Invoke($null, @($operation))
-  $task.Wait()
+  if (-not $task.Wait(2200)) {
+    throw "Timed out while reading media session"
+  }
   $task.Result
 }
 $manager = Await-WinRt ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager]::RequestAsync()) ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager])
@@ -56,8 +63,19 @@ if ($null -eq $session) {
 }
 "#;
 
-        let output = Command::new("powershell")
-            .args(["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script])
+        let output = Command::new("powershell.exe")
+            .creation_flags(CREATE_NO_WINDOW)
+            .args([
+                "-NoLogo",
+                "-NoProfile",
+                "-NonInteractive",
+                "-WindowStyle",
+                "Hidden",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                script,
+            ])
             .output();
 
         match output {

@@ -37,15 +37,31 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    const refresh = () => {
-      getNowPlaying().then((music) => {
-        if (!cancelled) setNowPlaying(music);
-      });
+    let refreshing = false;
+    const refresh = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        const music = await getNowPlaying();
+        if (!cancelled) {
+          setNowPlaying((current) =>
+            current.isPlaying === music.isPlaying &&
+            current.title === music.title &&
+            current.artist === music.artist &&
+            current.source === music.source
+              ? current
+              : music,
+          );
+        }
+      } finally {
+        refreshing = false;
+      }
     };
-    refresh();
-    const id = window.setInterval(refresh, 5000);
+    const first = window.setTimeout(refresh, 1500);
+    const id = window.setInterval(refresh, 15000);
     return () => {
       cancelled = true;
+      window.clearTimeout(first);
       window.clearInterval(id);
     };
   }, []);
