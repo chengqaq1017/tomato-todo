@@ -1,7 +1,7 @@
 use tauri::{
-    menu::{Menu, MenuItem, PredefinedMenuItem},
+    menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager, WindowEvent,
+    AppHandle, Manager, WindowEvent,
 };
 use serde::{Deserialize, Serialize};
 use std::process::Command;
@@ -112,26 +112,16 @@ pub fn run() {
         ))
         .invoke_handler(tauri::generate_handler![get_now_playing])
         .setup(|app| {
-            let show = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
-            let start = MenuItem::with_id(app, "start", "Start timer", true, None::<&str>)?;
-            let pause = MenuItem::with_id(app, "pause", "Pause timer", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(
-                app,
-                &[&show, &start, &pause, &PredefinedMenuItem::separator(app)?, &quit],
-            )?;
+            let show = MenuItem::with_id(app, "show", "显示主窗口", true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&show, &quit])?;
 
-            TrayIconBuilder::new()
+            let mut tray = TrayIconBuilder::new()
                 .menu(&menu)
-                .tooltip("Tomato Todo")
+                .show_menu_on_left_click(false)
+                .tooltip("Tomato Todo - 番茄待办")
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => show_main_window(app),
-                    "start" => {
-                        let _ = app.emit("tray:start-timer", ());
-                    }
-                    "pause" => {
-                        let _ = app.emit("tray:pause-timer", ());
-                    }
                     "quit" => app.exit(0),
                     _ => {}
                 })
@@ -144,8 +134,13 @@ pub fn run() {
                     {
                         show_main_window(tray.app_handle());
                     }
-                })
-                .build(app)?;
+                });
+
+            if let Some(icon) = app.default_window_icon() {
+                tray = tray.icon(icon.clone());
+            }
+
+            tray.build(app)?;
             Ok(())
         })
         .on_window_event(|window, event| {
