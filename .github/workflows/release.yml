@@ -37,6 +37,6 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "Tomato Todo ${{ github.ref_name }}"
           releaseBody: "See CHANGELOG.md for details."
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
