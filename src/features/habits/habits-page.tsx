@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -28,6 +29,7 @@ function streak(habit: Habit) {
 }
 
 export default function HabitsPage() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const habits = useProductivityStore((state) => state.habits);
   const addHabit = useProductivityStore((state) => state.addHabit);
@@ -40,12 +42,12 @@ export default function HabitsPage() {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="grid gap-5">
       <Card>
         <CardHeader>
-          <CardTitle>Daily habits</CardTitle>
+          <CardTitle>{t("habits.daily")}</CardTitle>
           <Badge>{todayKey()}</Badge>
         </CardHeader>
         <CardContent className="grid gap-3">
           <div className="grid gap-2 md:grid-cols-[1fr_auto]">
-            <Input placeholder="New habit" value={name} onChange={(event) => setName(event.target.value)} />
+            <Input placeholder={t("habits.newHabit")} value={name} onChange={(event) => setName(event.target.value)} />
             <Button
               variant="primary"
               onClick={() => {
@@ -55,7 +57,7 @@ export default function HabitsPage() {
               }}
             >
               <Plus size={16} />
-              Add
+              {t("habits.add")}
             </Button>
           </div>
         </CardContent>
@@ -71,7 +73,7 @@ export default function HabitsPage() {
                   value={habit.name}
                   onChange={(event) => updateHabit(habit.id, { name: event.target.value })}
                 />
-                <Badge>{streak(habit)} day streak</Badge>
+                <Badge>{t("habits.dayStreak", { count: streak(habit) })}</Badge>
                 <Button size="icon" variant="ghost" className="ml-auto" onClick={() => deleteHabit(habit.id)}>
                   <Trash2 size={16} />
                 </Button>
@@ -96,7 +98,9 @@ export default function HabitsPage() {
             </CardContent>
           </Card>
         ))}
-        {habits.length === 0 && <Card className="p-6 text-sm text-muted-foreground">Add a habit to start tracking streaks.</Card>}
+        {habits.length === 0 && (
+          <Card className="p-6 text-sm text-muted-foreground">{t("habits.empty")}</Card>
+        )}
       </div>
     </motion.div>
   );

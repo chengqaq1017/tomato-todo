@@ -4,36 +4,53 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 224 32% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 32% 12%;
-    --primary: 164 85% 38%;
+    --background: 0 0% 11%;
+    --foreground: 0 0% 80%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 82%;
+    --sidebar: 0 0% 15%;
+    --activitybar: 0 0% 20%;
+    --editor: 0 0% 12%;
+    --titlebar: 0 0% 15%;
+    --primary: 207 100% 42%;
     --primary-foreground: 0 0% 100%;
-    --muted: 210 18% 92%;
-    --muted-foreground: 218 12% 43%;
-    --accent: 210 95% 45%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 57%;
+    --accent: 207 100% 42%;
     --accent-foreground: 0 0% 100%;
-    --border: 214 18% 86%;
-    --input: 214 18% 86%;
-    --ring: 164 85% 38%;
-    --radius: 8px;
+    --border: 0 0% 25%;
+    --input: 0 0% 19%;
+    --ring: 207 100% 42%;
+    --radius: 2px;
+    --statusbar: 207 100% 35%;
+    --success: 164 56% 55%;
+    --warning: 47 100% 40%;
+    --danger: 0 80% 60%;
   }
 
-  .dark {
-    --background: 222 23% 9%;
-    --foreground: 210 20% 96%;
-    --card: 222 20% 13%;
-    --card-foreground: 210 20% 96%;
-    --primary: 164 85% 42%;
-    --primary-foreground: 220 28% 8%;
-    --muted: 220 17% 18%;
-    --muted-foreground: 218 12% 68%;
-    --accent: 207 88% 58%;
-    --accent-foreground: 220 28% 8%;
-    --border: 220 16% 24%;
-    --input: 220 16% 24%;
-    --ring: 164 85% 42%;
+  .light {
+    --background: 210 20% 97%;
+    --foreground: 220 13% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 14%;
+    --sidebar: 210 18% 94%;
+    --activitybar: 210 18% 95%;
+    --editor: 210 20% 98%;
+    --titlebar: 210 17% 92%;
+    --primary: 207 100% 42%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 210 15% 91%;
+    --muted-foreground: 218 9% 42%;
+    --accent: 207 100% 42%;
+    --accent-foreground: 0 0% 100%;
+    --border: 214 13% 82%;
+    --input: 0 0% 100%;
+    --ring: 207 100% 42%;
+    --radius: 2px;
+    --statusbar: 207 100% 42%;
+    --success: 164 60% 40%;
+    --warning: 47 100% 45%;
+    --danger: 0 75% 50%;
   }
 
   * {
@@ -45,6 +62,8 @@
     margin: 0;
     min-width: 360px;
     overflow: hidden;
+    font-family: "Segoe UI", "Microsoft YaHei UI", "SF Pro Text", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
   }
 
   button,
@@ -55,18 +74,29 @@
   }
 
   ::selection {
-    background: hsl(var(--primary) / 0.2);
+    background: hsl(var(--primary) / 0.42);
+    color: #ffffff;
   }
 }
 
 @layer components {
   .panel {
-    @apply border bg-card text-card-foreground shadow-panel;
+    @apply border bg-card text-card-foreground;
     border-radius: var(--radius);
+    box-shadow: none;
   }
 
   .scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.32) transparent;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.45) transparent;
+  }
+
+  .vscode-tab {
+    @apply inline-flex h-9 items-center border-r border-border bg-background px-3 text-xs text-foreground;
+  }
+
+  .vscode-section-title {
+    @apply px-3 py-2 text-[11px] font-semibold uppercase text-muted-foreground;
+    letter-spacing: 0;
   }
 }

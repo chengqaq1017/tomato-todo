@@ -1,7 +1,9 @@
 export type TimerMode = "work" | "shortBreak" | "longBreak";
 export type TimerStatus = "idle" | "running" | "paused";
+export type TaskTimerMode = "countup" | "countdown";
 export type Priority = "low" | "medium" | "high";
 export type ThemeMode = "light" | "dark" | "system";
+export type Language = "en" | "zh-CN";
 
 export interface PomodoroSettings {
   workMinutes: number;
@@ -32,6 +34,9 @@ export interface Task {
   deadline?: string;
   estimatedPomodoros: number;
   completedPomodoros: number;
+  timerMode: TaskTimerMode;
+  targetSeconds: number;
+  focusedSeconds: number;
   completed: boolean;
   order: number;
   createdAt: string;
@@ -56,6 +61,7 @@ export interface Note {
 
 export interface AppSettings {
   theme: ThemeMode;
+  language: Language;
   accent: string;
   radius: number;
   blur: boolean;

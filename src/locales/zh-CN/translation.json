@@ -1,0 +1,162 @@
+{
+  "nav": {
+    "focus": "专注",
+    "tasks": "任务",
+    "stats": "统计",
+    "habits": "习惯",
+    "notes": "笔记",
+    "settings": "设置",
+    "branding": "番茄待办",
+    "commandPalette": "命令面板",
+    "timeLeft": "剩余 {{remaining}}"
+  },
+  "commandPalette": {
+    "placeholder": "搜索命令或输入任务标题",
+    "openTasks": "打开任务",
+    "openStatistics": "打开统计",
+    "openHabits": "打开习惯",
+    "openNotes": "打开笔记",
+    "openSettings": "打开设置"
+  },
+  "errorBoundary": {
+    "title": "出了点问题",
+    "description": "应用已恢复到外壳状态。重新加载可恢复数据。",
+    "reload": "重新加载"
+  },
+  "pomodoro": {
+    "modes": {
+      "work": "专注",
+      "shortBreak": "短休息",
+      "longBreak": "长休息"
+    },
+    "start": "开始",
+    "pause": "暂停",
+    "resume": "继续",
+    "stop": "停止",
+    "skip": "跳过",
+    "focusMode": "专注模式",
+    "exitFocus": "退出专注",
+    "noTaskSelected": "未选择任务",
+    "sessionPlan": "会话计划",
+    "round": "第 {{round}} 轮",
+    "workMinutes": "专注时长",
+    "shortBreakMinutes": "短休息",
+    "longBreakMinutes": "长休息",
+    "minutes": "分钟",
+    "longBreakEvery": "每几轮进入长休息",
+    "autoStartNext": "自动开始下一轮",
+    "soundEnabled": "声音提醒",
+    "recentSessions": "最近记录",
+    "completedHistory": "完成的专注记录会显示在这里。",
+    "sessionComplete": "会话完成",
+    "sessionFinished": "{{mode}} 已完成。"
+  },
+  "tasks": {
+    "inbox": "任务收件箱",
+    "shown": "显示 {{count}} 项",
+    "createTask": "创建任务",
+    "add": "添加",
+    "searchPlaceholder": "搜索任务、备注、标签",
+    "filterActive": "进行中",
+    "filterCompleted": "已完成",
+    "filterAll": "全部",
+    "notesPlaceholder": "备注",
+    "tagsPlaceholder": "标签，用逗号分隔",
+    "drag": "拖拽",
+    "complete": "完成",
+    "startTimer": "开始任务计时",
+    "currentSession": "本次专注",
+    "readyToFocus": "等待开始",
+    "enterImmersive": "沉浸模式",
+    "exitImmersive": "退出沉浸",
+    "immersiveMode": "沉浸专注",
+    "finishSession": "完成本次",
+    "countup": "正计时",
+    "countdown": "倒计时",
+    "targetMinutes": "目标分钟",
+    "targetMinutesBadge": "目标 {{minutes}} 分钟",
+    "focusedTotal": "累计 {{time}}",
+    "noiseOff": "关闭白噪音",
+    "noiseWhite": "白噪音",
+    "noiseRain": "雨声",
+    "noiseBrown": "棕噪音",
+    "delete": "删除",
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "pomodoros": "{{completed}}/{{estimated}} 个番茄"
+  },
+  "habits": {
+    "daily": "每日习惯",
+    "newHabit": "新习惯",
+    "add": "添加",
+    "dayStreak": "连续 {{count}} 天",
+    "empty": "添加习惯，开始追踪连续记录。"
+  },
+  "notes": {
+    "newNote": "新建笔记",
+    "nothingYet": "_暂无内容。_",
+    "defaultTitle": "未命名笔记",
+    "defaultBody": "## 记录想法\n\n用标记语法记录会议纪要、计划和灵感。"
+  },
+  "statistics": {
+    "focusHours": "专注小时",
+    "completedTasks": "已完成任务",
+    "averageSession": "平均会话",
+    "longestStreak": "最长连续",
+    "focusMinutes": "专注分钟数",
+    "range": {
+      "week": "本周",
+      "month": "本月",
+      "year": "本年"
+    },
+    "rangeDescription": {
+      "week": "最近 7 天",
+      "month": "最近 30 天",
+      "year": "最近 12 个月"
+    },
+    "last14Days": "过去 14 天",
+    "heatmap": "热力图",
+    "monthlyActivity": "月度活动"
+  },
+  "music": {
+    "title": "正在播放",
+    "playing": "播放中",
+    "paused": "已暂停",
+    "none": "未检测到正在播放的音乐",
+    "unknownArtist": "未知艺术家"
+  },
+  "settings": {
+    "appearance": "外观",
+    "theme": "主题",
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色",
+    "accent": "强调色 HSL",
+    "radius": "圆角",
+    "blurEffects": "模糊效果",
+    "language": "语言",
+    "desktop": "桌面",
+    "launchOnStartup": "开机自启",
+    "hideToTray": "隐藏到托盘",
+    "alwaysOnTop": "窗口置顶",
+    "soundReminders": "声音提醒",
+    "backup": "备份与恢复",
+    "exportSettings": "导出设置",
+    "importSettings": "导入设置",
+    "backupDescription": "备份包含本地任务、会话记录、笔记、习惯、计时器偏好和界面设置。",
+    "keyboard": "快捷键",
+    "commandPalette": "命令面板",
+    "startPauseTimer": "开始或暂停计时",
+    "showApplication": "显示应用"
+  },
+  "statusBar": {
+    "idle": "空闲",
+    "running": "专注中",
+    "paused": "已暂停",
+    "tasks": "{{count}} 个任务",
+    "ready": "就绪"
+  }
+}

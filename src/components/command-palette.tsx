@@ -1,31 +1,31 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckSquare, Flame, NotebookPen, Search, Settings, Sprout, BarChart3 } from "lucide-react";
+import { CheckSquare, NotebookPen, Search, Settings, Sprout, BarChart3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useAppStore } from "../stores/app-store";
 import { useProductivityStore } from "../stores/productivity-store";
 
-const commands = [
-  { label: "Open Focus", path: "/", icon: Flame },
-  { label: "Open Tasks", path: "/tasks", icon: CheckSquare },
-  { label: "Open Statistics", path: "/statistics", icon: BarChart3 },
-  { label: "Open Habits", path: "/habits", icon: Sprout },
-  { label: "Open Notes", path: "/notes", icon: NotebookPen },
-  { label: "Open Settings", path: "/settings", icon: Settings },
-];
-
 export function CommandPalette() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const open = useAppStore((state) => state.commandOpen);
   const setOpen = useAppStore((state) => state.setCommandOpen);
   const addTask = useProductivityStore((state) => state.addTask);
-  const startTimer = useProductivityStore((state) => state.startTimer);
+
+  const commands = useMemo(() => [
+    { label: t("commandPalette.openTasks"), path: "/", icon: CheckSquare },
+    { label: t("commandPalette.openStatistics"), path: "/statistics", icon: BarChart3 },
+    { label: t("commandPalette.openHabits"), path: "/habits", icon: Sprout },
+    { label: t("commandPalette.openNotes"), path: "/notes", icon: NotebookPen },
+    { label: t("commandPalette.openSettings"), path: "/settings", icon: Settings },
+  ], [t]);
 
   const filtered = useMemo(
     () => commands.filter((command) => command.label.toLowerCase().includes(query.toLowerCase())),
-    [query],
+    [commands, query],
   );
 
   if (!open) return null;
@@ -41,7 +41,7 @@ export function CommandPalette() {
           <Input
             autoFocus
             className="border-0 bg-transparent focus:ring-0"
-            placeholder="Search commands or type a task title"
+            placeholder={t("commandPalette.placeholder")}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
@@ -55,10 +55,6 @@ export function CommandPalette() {
           />
         </div>
         <div className="max-h-80 overflow-auto p-2">
-          <Button className="mb-2 w-full justify-start" variant="ghost" onClick={() => startTimer()}>
-            <Flame size={16} />
-            Start focus session
-          </Button>
           {filtered.map((command) => {
             const Icon = command.icon;
             return (

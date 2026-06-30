@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Maximize2, Pause, Play, RotateCcw, SkipForward, Square } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -12,23 +13,24 @@ import { notify } from "../../services/desktop";
 import { useTimerSnapshot } from "./use-timer-snapshot";
 import type { TimerMode } from "../../types/domain";
 
-const labels: Record<TimerMode, string> = {
-  work: "Focus",
-  shortBreak: "Short break",
-  longBreak: "Long break",
-};
-
 function ModeButton({ mode }: { mode: TimerMode }) {
   const current = useProductivityStore((state) => state.timer.mode);
   const setTimerMode = useProductivityStore((state) => state.setTimerMode);
+  const { t } = useTranslation();
+  const modeLabels = useMemo<Record<TimerMode, string>>(() => ({
+    work: t("pomodoro.modes.work"),
+    shortBreak: t("pomodoro.modes.shortBreak"),
+    longBreak: t("pomodoro.modes.longBreak"),
+  }), [t]);
   return (
     <Button variant={current === mode ? "primary" : "secondary"} onClick={() => setTimerMode(mode)}>
-      {labels[mode]}
+      {modeLabels[mode]}
     </Button>
   );
 }
 
 export default function PomodoroPage() {
+  const { t } = useTranslation();
   const [focusMode, setFocusMode] = useState(false);
   const timer = useProductivityStore((state) => state.timer);
   const pomodoro = useProductivityStore((state) => state.pomodoro);
@@ -44,12 +46,21 @@ export default function PomodoroPage() {
   const activeTask = tasks.find((task) => task.id === timer.activeTaskId);
   const circumference = 2 * Math.PI * 142;
 
+  const modeLabels = useMemo<Record<TimerMode, string>>(() => ({
+    work: t("pomodoro.modes.work"),
+    shortBreak: t("pomodoro.modes.shortBreak"),
+    longBreak: t("pomodoro.modes.longBreak"),
+  }), [t]);
+
   useEffect(() => {
     if (snapshot.complete && timer.status === "running") {
       stopTimer(true);
-      notify("Session complete", `${labels[timer.mode]} finished.`).catch(console.error);
+      notify(
+        t("pomodoro.sessionComplete"),
+        t("pomodoro.sessionFinished", { mode: modeLabels[timer.mode] }),
+      ).catch(console.error);
     }
-  }, [snapshot.complete, stopTimer, timer.mode, timer.status]);
+  }, [modeLabels, snapshot.complete, stopTimer, timer.mode, timer.status, t]);
 
   const pageClass = focusMode
     ? "fixed inset-0 z-40 grid place-items-center bg-background p-6"
@@ -82,9 +93,13 @@ export default function PomodoroPage() {
             </svg>
             <div className="absolute inset-0 grid place-items-center">
               <div>
-                <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">{labels[timer.mode]}</div>
+                <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                  {modeLabels[timer.mode]}
+                </div>
                 <div className="mt-2 text-6xl font-semibold tabular-nums">{formatDuration(snapshot.remaining)}</div>
-                <div className="mt-3 text-sm text-muted-foreground">{activeTask?.title ?? "No task selected"}</div>
+                <div className="mt-3 text-sm text-muted-foreground">
+                  {activeTask?.title ?? t("pomodoro.noTaskSelected")}
+                </div>
               </div>
             </div>
           </div>
@@ -92,32 +107,32 @@ export default function PomodoroPage() {
             {timer.status === "idle" && (
               <Button variant="primary" onClick={() => startTimer(activeTask?.id)}>
                 <Play size={17} />
-                Start
+                {t("pomodoro.start")}
               </Button>
             )}
             {timer.status === "running" && (
               <Button variant="primary" onClick={pauseTimer}>
                 <Pause size={17} />
-                Pause
+                {t("pomodoro.pause")}
               </Button>
             )}
             {timer.status === "paused" && (
               <Button variant="primary" onClick={resumeTimer}>
                 <Play size={17} />
-                Resume
+                {t("pomodoro.resume")}
               </Button>
             )}
             <Button variant="outline" onClick={() => stopTimer(false)}>
               <Square size={16} />
-              Stop
+              {t("pomodoro.stop")}
             </Button>
             <Button variant="outline" onClick={skipTimer}>
               <SkipForward size={16} />
-              Skip
+              {t("pomodoro.skip")}
             </Button>
             <Button variant="ghost" onClick={() => setFocusMode((value) => !value)}>
               <Maximize2 size={16} />
-              {focusMode ? "Exit focus" : "Focus mode"}
+              {focusMode ? t("pomodoro.exitFocus") : t("pomodoro.focusMode")}
             </Button>
           </div>
         </div>
@@ -127,17 +142,17 @@ export default function PomodoroPage() {
         <aside className="grid gap-5">
           <Card>
             <CardHeader>
-              <CardTitle>Session plan</CardTitle>
-              <Badge>Round {timer.round + 1}</Badge>
+              <CardTitle>{t("pomodoro.sessionPlan")}</CardTitle>
+              <Badge>{t("pomodoro.round", { round: timer.round + 1 })}</Badge>
             </CardHeader>
             <CardContent className="grid gap-3">
-              {[
-                ["workMinutes", "Work"],
-                ["shortBreakMinutes", "Short break"],
-                ["longBreakMinutes", "Long break"],
-              ].map(([key, label]) => (
+              {([ 
+                ["workMinutes", t("pomodoro.workMinutes")],
+                ["shortBreakMinutes", t("pomodoro.shortBreakMinutes")],
+                ["longBreakMinutes", t("pomodoro.longBreakMinutes")],
+              ] as const).map(([key, label]) => (
                 <label key={key} className="grid gap-1 text-sm">
-                  <span className="text-muted-foreground">{label} minutes</span>
+                  <span className="text-muted-foreground">{label} {t("pomodoro.minutes")}</span>
                   <Input
                     type="number"
                     min={1}
@@ -147,25 +162,41 @@ export default function PomodoroPage() {
                   />
                 </label>
               ))}
+              <label className="grid gap-1 text-sm">
+                <span className="text-muted-foreground">{t("pomodoro.longBreakEvery")}</span>
+                <Input
+                  type="number"
+                  min={2}
+                  max={12}
+                  value={pomodoro.longBreakEvery}
+                  onChange={(event) => updatePomodoro({ longBreakEvery: Number(event.target.value) })}
+                />
+              </label>
               <label className="flex items-center justify-between text-sm">
-                Auto-start next session
+                {t("pomodoro.autoStartNext")}
                 <Switch checked={pomodoro.autoStartNext} onClick={() => updatePomodoro({ autoStartNext: !pomodoro.autoStartNext })} />
+              </label>
+              <label className="flex items-center justify-between text-sm">
+                {t("pomodoro.soundEnabled")}
+                <Switch checked={pomodoro.soundEnabled} onClick={() => updatePomodoro({ soundEnabled: !pomodoro.soundEnabled })} />
               </label>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Recent sessions</CardTitle>
+              <CardTitle>{t("pomodoro.recentSessions")}</CardTitle>
               <RotateCcw size={16} className="text-muted-foreground" />
             </CardHeader>
             <CardContent className="grid gap-2">
               {sessions.slice(0, 6).map((session) => (
                 <div key={session.id} className="flex items-center justify-between rounded-md bg-muted px-3 py-2 text-sm">
-                  <span>{labels[session.mode]}</span>
+                  <span>{modeLabels[session.mode]}</span>
                   <span className="text-muted-foreground">{formatDuration(session.focusedSeconds)}</span>
                 </div>
               ))}
-              {sessions.length === 0 && <p className="text-sm text-muted-foreground">Completed focus history appears here.</p>}
+              {sessions.length === 0 && (
+                <p className="text-sm text-muted-foreground">{t("pomodoro.completedHistory")}</p>
+              )}
             </CardContent>
           </Card>
         </aside>

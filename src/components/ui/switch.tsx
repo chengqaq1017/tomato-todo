@@ -12,7 +12,7 @@ export function Switch({ checked, className, ...props }: SwitchProps) {
       role="switch"
       aria-checked={checked}
       className={cn(
-        "relative h-6 w-11 rounded-full border transition",
+        "relative h-5 w-9 rounded-sm border transition",
         checked ? "bg-primary" : "bg-muted",
         className,
       )}
@@ -20,8 +20,8 @@ export function Switch({ checked, className, ...props }: SwitchProps) {
     >
       <span
         className={cn(
-          "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition",
-          checked ? "left-5" : "left-0.5",
+          "absolute top-0.5 h-4 w-4 rounded-sm bg-white shadow transition",
+          checked ? "left-4" : "left-0.5",
         )}
       />
     </button>

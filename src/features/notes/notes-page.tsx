@@ -2,12 +2,14 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input, Textarea } from "../../components/ui/input";
 import { useProductivityStore } from "../../stores/productivity-store";
 
 export default function NotesPage() {
+  const { t } = useTranslation();
   const notes = useProductivityStore((state) => state.notes);
   const addNote = useProductivityStore((state) => state.addNote);
   const updateNote = useProductivityStore((state) => state.updateNote);
@@ -22,12 +24,12 @@ export default function NotesPage() {
           <Button
             variant="primary"
             onClick={() => {
-              const id = addNote();
+              const id = addNote(t("notes.defaultTitle"));
               setActiveId(id);
             }}
           >
             <Plus size={16} />
-            New note
+            {t("notes.newNote")}
           </Button>
           <div className="scrollbar grid gap-2 overflow-auto">
             {notes.map((note) => (
@@ -65,7 +67,7 @@ export default function NotesPage() {
           </Card>
           <Card className="min-h-0">
             <CardContent className="prose prose-sm max-w-none overflow-auto text-foreground dark:prose-invert">
-              <ReactMarkdown>{active.body || "_Nothing yet._"}</ReactMarkdown>
+              <ReactMarkdown>{active.body || t("notes.nothingYet")}</ReactMarkdown>
             </CardContent>
           </Card>
         </div>

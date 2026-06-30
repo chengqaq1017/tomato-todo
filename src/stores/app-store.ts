@@ -12,9 +12,10 @@ interface AppState {
 }
 
 const defaultSettings: AppSettings = {
-  theme: "system",
-  accent: "164 85% 38%",
-  radius: 8,
+  theme: "dark",
+  language: "zh-CN",
+  accent: "211 100% 40%",
+  radius: 4,
   blur: true,
   autoLaunch: false,
   hideToTray: true,
@@ -52,6 +53,22 @@ export const useAppStore = create<AppState>()(
         window.location.reload();
       },
     }),
-    { name: "tomato-app" },
+    {
+      name: "tomato-app",
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as Partial<AppState>;
+        return {
+          ...state,
+          settings: {
+            ...defaultSettings,
+            ...state.settings,
+            theme: "dark",
+            language: "zh-CN",
+            window: { ...defaultSettings.window, ...state.settings?.window },
+          },
+        };
+      },
+    },
   ),
 );

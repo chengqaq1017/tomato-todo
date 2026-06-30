@@ -6,6 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useTimerSnapshot } from "./use-timer-snapshot";
 
+type TimerSnapshotState = Parameters<typeof useTimerSnapshot>[0];
+
 const settings = {
   workMinutes: 25,
   shortBreakMinutes: 5,
@@ -15,7 +17,7 @@ const settings = {
   soundEnabled: true,
 };
 
-const idleTimer = {
+const idleTimer: TimerSnapshotState = {
   mode: "work" as const,
   status: "idle" as const,
   accumulatedSeconds: 0,
@@ -84,16 +86,18 @@ describe("useTimerSnapshot", () => {
   });
 
   it("does not tick when paused", () => {
+    const initialProps: { timer: TimerSnapshotState } = {
+      timer: {
+        ...idleTimer,
+        status: "running",
+        startedAt: frozenNow,
+      },
+    };
+
     const { result, rerender } = renderHook(
-      ({ timer }) => useTimerSnapshot(timer, settings),
+      ({ timer }: { timer: TimerSnapshotState }) => useTimerSnapshot(timer, settings),
       {
-        initialProps: {
-          timer: {
-            ...idleTimer,
-            status: "running" as const,
-            startedAt: frozenNow,
-          },
-        },
+        initialProps,
       },
     );
 
@@ -168,5 +172,6 @@ describe("useTimerSnapshot", () => {
     // (it's called in the effect cleanup, which runs on unmount only if the effect ran)
     // Since status is "idle", the effect doesn't register — so clearInterval won't be called
     // That's correct behavior: no interval to clean up
+    expect(clearIntervalSpy).not.toHaveBeenCalled();
   });
 });

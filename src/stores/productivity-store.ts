@@ -1,6 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Habit, Note, PomodoroSession, PomodoroSettings, Task, TimerMode, TimerStatus } from "../types/domain";
+import type {
+  Habit,
+  Note,
+  PomodoroSession,
+  PomodoroSettings,
+  Task,
+  TimerMode,
+  TimerStatus,
+} from "../types/domain";
 import { uid, todayKey } from "../lib/utils";
 
 interface ProductivityState {
@@ -34,7 +42,7 @@ interface ProductivityState {
   toggleHabit: (id: string, date?: string) => void;
   updateHabit: (id: string, updates: Partial<Habit>) => void;
   deleteHabit: (id: string) => void;
-  addNote: () => string;
+  addNote: (titleOverride?: string) => string;
   updateNote: (id: string, updates: Partial<Note>) => void;
   deleteNote: (id: string) => void;
 }
@@ -47,6 +55,19 @@ const defaultPomodoro: PomodoroSettings = {
   autoStartNext: false,
   soundEnabled: true,
 };
+
+const defaultNoteTitle = "快速笔记";
+const defaultNoteBody = "## 记录想法\n\n用标记语法记录会议纪要、计划和灵感。";
+const defaultTaskTargetSeconds = 25 * 60;
+
+function withTaskDefaults(task: Task): Task {
+  return {
+    ...task,
+    timerMode: task.timerMode ?? "countdown",
+    targetSeconds: task.targetSeconds ?? defaultTaskTargetSeconds,
+    focusedSeconds: task.focusedSeconds ?? 0,
+  };
+}
 
 function durationFor(mode: TimerMode, settings: PomodoroSettings) {
   if (mode === "work") return settings.workMinutes * 60;
@@ -70,8 +91,8 @@ export const useProductivityStore = create<ProductivityState>()(
       notes: [
         {
           id: uid("note"),
-          title: "Quick notes",
-          body: "## Capture thoughts\n\nUse Markdown for meeting notes, plans, and ideas.",
+          title: defaultNoteTitle,
+          body: defaultNoteBody,
           updatedAt: new Date().toISOString(),
         },
       ],
@@ -100,9 +121,11 @@ export const useProductivityStore = create<ProductivityState>()(
           };
         }),
       resumeTimer: () =>
-        set((state) => ({
-          timer: { ...state.timer, status: "running", startedAt: Date.now(), pausedAt: undefined },
-        })),
+        set((state) =>
+          state.timer.status === "paused"
+            ? { timer: { ...state.timer, status: "running", startedAt: Date.now(), pausedAt: undefined } }
+            : state,
+        ),
       stopTimer: (completed = false) =>
         set((state) => {
           const now = new Date().toISOString();
@@ -110,7 +133,13 @@ export const useProductivityStore = create<ProductivityState>()(
             ? Math.floor((Date.now() - state.timer.startedAt) / 1000)
             : 0;
           const focusedSeconds = state.timer.accumulatedSeconds + runningSeconds;
-          const plannedSeconds = durationFor(state.timer.mode, state.pomodoro);
+          const activeTask = state.timer.activeTaskId
+            ? state.tasks.find((task) => task.id === state.timer.activeTaskId)
+            : undefined;
+          const plannedSeconds =
+            state.timer.mode === "work" && activeTask
+              ? Math.max(activeTask.targetSeconds ?? defaultTaskTargetSeconds, focusedSeconds)
+              : durationFor(state.timer.mode, state.pomodoro);
           const shouldRecord = focusedSeconds > 0;
           const session: PomodoroSession = {
             id: uid("session"),
@@ -123,25 +152,26 @@ export const useProductivityStore = create<ProductivityState>()(
             completed,
           };
           const round = completed && state.timer.mode === "work" ? state.timer.round + 1 : state.timer.round;
-          const mode = completed ? nextMode(state.timer.mode, round, state.pomodoro) : state.timer.mode;
-          const tasks =
-            completed && state.timer.mode === "work" && state.timer.activeTaskId
-              ? state.tasks.map((task) =>
-                  task.id === state.timer.activeTaskId
-                    ? { ...task, completedPomodoros: task.completedPomodoros + 1, updatedAt: now }
-                    : task,
-                )
-              : state.tasks;
+          const mode = state.timer.activeTaskId ? "work" : completed ? nextMode(state.timer.mode, round, state.pomodoro) : state.timer.mode;
+          const tasks = state.tasks.map((task) => {
+            if (task.id !== state.timer.activeTaskId || state.timer.mode !== "work") return task;
+            return {
+              ...task,
+              focusedSeconds: (task.focusedSeconds ?? 0) + focusedSeconds,
+              completedPomodoros: completed ? task.completedPomodoros + 1 : task.completedPomodoros,
+              updatedAt: now,
+            };
+          });
           return {
             tasks,
             sessions: shouldRecord ? [session, ...state.sessions].slice(0, 1000) : state.sessions,
             timer: {
               mode,
-              status: state.pomodoro.autoStartNext && completed ? "running" : "idle",
-              startedAt: state.pomodoro.autoStartNext && completed ? Date.now() : undefined,
+              status: !state.timer.activeTaskId && state.pomodoro.autoStartNext && completed ? "running" : "idle",
+              startedAt: !state.timer.activeTaskId && state.pomodoro.autoStartNext && completed ? Date.now() : undefined,
               accumulatedSeconds: 0,
               round,
-              activeTaskId: state.timer.activeTaskId,
+              activeTaskId: undefined,
             },
           };
         }),
@@ -162,6 +192,9 @@ export const useProductivityStore = create<ProductivityState>()(
                 tags: [],
                 estimatedPomodoros: 1,
                 completedPomodoros: 0,
+                timerMode: "countdown",
+                targetSeconds: defaultTaskTargetSeconds,
+                focusedSeconds: 0,
                 completed: false,
                 order: 0,
                 createdAt: now,
@@ -224,10 +257,10 @@ export const useProductivityStore = create<ProductivityState>()(
       updateHabit: (id, updates) =>
         set((state) => ({ habits: state.habits.map((habit) => (habit.id === id ? { ...habit, ...updates } : habit)) })),
       deleteHabit: (id) => set((state) => ({ habits: state.habits.filter((habit) => habit.id !== id) })),
-      addNote: () => {
+      addNote: (titleOverride?: string) => {
         const id = uid("note");
         set((state) => ({
-          notes: [{ id, title: "Untitled note", body: "", updatedAt: new Date().toISOString() }, ...state.notes],
+          notes: [{ id, title: titleOverride ?? "未命名笔记", body: "", updatedAt: new Date().toISOString() }, ...state.notes],
         }));
         return id;
       },
@@ -239,6 +272,24 @@ export const useProductivityStore = create<ProductivityState>()(
         })),
       deleteNote: (id) => set((state) => ({ notes: state.notes.filter((note) => note.id !== id) })),
     }),
-    { name: "tomato-productivity" },
+    {
+      name: "tomato-productivity",
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as Partial<ProductivityState>;
+        return {
+          ...state,
+          tasks: state.tasks?.map((task) => withTaskDefaults(task)),
+          notes: state.notes?.map((note) => ({
+            ...note,
+            title: note.title === "Quick notes" || note.title === "Untitled note" ? defaultNoteTitle : note.title,
+            body:
+              note.body === "## Capture thoughts\n\nUse Markdown for meeting notes, plans, and ideas."
+                ? defaultNoteBody
+                : note.body,
+          })),
+        };
+      },
+    },
   ),
 );

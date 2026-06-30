@@ -1,78 +1,119 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { BarChart3, CheckSquare, Command, Flame, NotebookPen, Settings, Sprout } from "lucide-react";
+import { BarChart3, CheckSquare, Command, Headphones, NotebookPen, Settings, Sprout } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../components/ui/button";
+import { StatusBar } from "../components/status-bar";
 import { useAppStore } from "../stores/app-store";
-import { useProductivityStore } from "../stores/productivity-store";
-import { formatDuration } from "../lib/utils";
-import { useTimerSnapshot } from "../features/pomodoro/use-timer-snapshot";
-
-const nav = [
-  { to: "/", label: "Focus", icon: Flame },
-  { to: "/tasks", label: "Tasks", icon: CheckSquare },
-  { to: "/statistics", label: "Stats", icon: BarChart3 },
-  { to: "/habits", label: "Habits", icon: Sprout },
-  { to: "/notes", label: "Notes", icon: NotebookPen },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
+import { getNowPlaying, type NowPlaying } from "../services/desktop";
 
 export function AppLayout({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const setCommandOpen = useAppStore((state) => state.setCommandOpen);
-  const timer = useProductivityStore((state) => state.timer);
-  const pomodoro = useProductivityStore((state) => state.pomodoro);
-  const snapshot = useTimerSnapshot(timer, pomodoro);
-  const page = nav.find((item) => item.to === location.pathname)?.label ?? "Focus";
+  const [nowPlaying, setNowPlaying] = useState<NowPlaying>({
+    isPlaying: false,
+    title: "",
+    artist: "",
+    source: "",
+  });
+
+  const nav = [
+    { to: "/", label: t("nav.tasks"), icon: CheckSquare, file: "任务清单", desc: "管理待办、优先级、标签和任务计时。" },
+    { to: "/statistics", label: t("nav.stats"), icon: BarChart3, file: "统计概览", desc: "查看专注时长、完成情况和活跃趋势。" },
+    { to: "/habits", label: t("nav.habits"), icon: Sprout, file: "习惯追踪", desc: "记录每日习惯和连续打卡。" },
+    { to: "/notes", label: t("nav.notes"), icon: NotebookPen, file: "笔记", desc: "写下计划、会议纪要和灵感。" },
+    { to: "/settings", label: t("nav.settings"), icon: Settings, file: "偏好设置", desc: "调整外观、桌面行为和快捷键。" },
+  ];
+
+  const currentPath = location.pathname === "/tasks" ? "/" : location.pathname;
+  const page = nav.find((item) => item.to === currentPath) ?? nav[0];
+  const PageIcon = page.icon;
+  const musicText = nowPlaying.title
+    ? `${nowPlaying.isPlaying ? t("music.playing") : t("music.paused")} · ${nowPlaying.title}${
+        nowPlaying.artist ? ` - ${nowPlaying.artist}` : ""
+      }`
+    : t("music.none");
+
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = () => {
+      getNowPlaying().then((music) => {
+        if (!cancelled) setNowPlaying(music);
+      });
+    };
+    refresh();
+    const id = window.setInterval(refresh, 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, []);
 
   return (
-    <div className="flex h-screen bg-background">
-      <aside className="hidden w-64 shrink-0 border-r bg-card/80 p-3 backdrop-blur md:flex md:flex-col">
-        <div className="flex h-12 items-center gap-3 px-2">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground">
-            <Flame size={19} />
-          </div>
-          <div>
-            <div className="text-sm font-semibold">Tomato Todo</div>
-            <div className="text-xs text-muted-foreground">{formatDuration(snapshot.remaining)} left</div>
-          </div>
-        </div>
-        <nav className="mt-5 grid gap-1">
-          {nav.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex h-10 items-center gap-3 rounded-md px-3 text-sm transition ${
-                    isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`
-                }
-              >
-                <Icon size={17} />
-                {item.label}
-              </NavLink>
-            );
-          })}
-        </nav>
-        <Button className="mt-auto justify-start" variant="outline" onClick={() => setCommandOpen(true)}>
-          <Command size={16} />
-          Command palette
+    <div className="flex h-screen bg-editor text-foreground">
+      {/* ── Activity Bar ── */}
+      <aside className="hidden w-12 shrink-0 flex-col items-center border-r border-border bg-activitybar py-2 md:flex">
+        {nav.map((item) => {
+          const Icon = item.icon;
+          const active = item.to === currentPath;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={`group relative grid h-12 w-12 place-items-center text-muted-foreground transition hover:text-foreground ${
+                active ? "text-foreground" : ""
+              }`}
+              title={item.label}
+            >
+              {active && <span className="absolute left-0 top-1 h-10 w-0.5 bg-foreground" />}
+              <Icon size={22} strokeWidth={1.8} />
+              <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 hidden w-56 -translate-y-1/2 border border-border bg-card px-3 py-2 text-left text-xs text-foreground shadow-lg group-hover:block">
+                <span className="block font-semibold">{item.label}</span>
+                <span className="mt-1 block leading-5 text-muted-foreground">{item.desc}</span>
+              </span>
+            </NavLink>
+          );
+        })}
+        <Button
+          className="mt-auto text-muted-foreground"
+          size="icon"
+          variant="ghost"
+          onClick={() => setCommandOpen(true)}
+          title={t("nav.commandPalette")}
+        >
+          <Command size={20} />
         </Button>
       </aside>
+
+      {/* ── Main area ── */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b bg-card/70 px-4 backdrop-blur">
-          <div>
-            <h1 className="text-sm font-semibold">{page}</h1>
-            <p className="text-xs text-muted-foreground md:hidden">{formatDuration(snapshot.remaining)} left</p>
+        <header className="flex h-9 shrink-0 items-center justify-between border-b border-border bg-titlebar">
+          <div className="flex min-w-0 flex-1 items-center">
+            <div className="vscode-tab">
+              <PageIcon size={14} className="mr-2 text-primary" />
+              <span className="truncate">{page.file}</span>
+            </div>
+            <div
+              className="mx-auto hidden max-w-[48vw] items-center gap-2 truncate px-3 text-xs text-muted-foreground md:flex"
+              title={musicText}
+            >
+              <Headphones size={14} className={nowPlaying.isPlaying ? "text-primary" : "text-muted-foreground"} />
+              <span className="truncate">{musicText}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button size="icon" variant="ghost" onClick={() => setCommandOpen(true)} title="Command palette">
-              <Command size={17} />
-            </Button>
-          </div>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="mr-1 h-7 w-7"
+            onClick={() => setCommandOpen(true)}
+            title={t("nav.commandPalette")}
+          >
+            <Command size={16} />
+          </Button>
         </header>
-        <main className="scrollbar min-h-0 flex-1 overflow-auto p-4 lg:p-6">{children}</main>
+        <main className="scrollbar min-h-0 flex-1 overflow-auto bg-editor p-3 lg:p-4">{children}</main>
+        <StatusBar />
       </div>
     </div>
   );

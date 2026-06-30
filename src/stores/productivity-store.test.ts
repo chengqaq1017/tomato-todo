@@ -294,7 +294,7 @@ describe("reorderTasks", () => {
     addTask("B");
     addTask("A");
     // orders: A=0, B=1, C=2 (prepend shifts previous)
-    const [a, b, c] = useProductivityStore.getState().tasks;
+    const [a, , c] = useProductivityStore.getState().tasks;
     // drag A (order 0) over C (order 2) — A moves to index 2
     reorderTasks(a.id, c.id);
     const reordered = useProductivityStore.getState().tasks;
@@ -398,7 +398,7 @@ describe("addNote", () => {
     const id = useProductivityStore.getState().addNote();
     expect(typeof id).toBe("string");
     const notes = useProductivityStore.getState().notes;
-    expect(notes[0].title).toBe("Untitled note");
+    expect(notes[0].title).toBe("未命名笔记");
     expect(notes[0].body).toBe("");
     expect(notes[0].id).toBe(id);
   });

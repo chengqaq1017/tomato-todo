@@ -1,0 +1,162 @@
+{
+  "nav": {
+    "focus": "Focus",
+    "tasks": "Tasks",
+    "stats": "Stats",
+    "habits": "Habits",
+    "notes": "Notes",
+    "settings": "Settings",
+    "branding": "Tomato Todo",
+    "commandPalette": "Command palette",
+    "timeLeft": "{{remaining}} left"
+  },
+  "commandPalette": {
+    "placeholder": "Search commands or type a task title",
+    "openTasks": "Open Tasks",
+    "openStatistics": "Open Statistics",
+    "openHabits": "Open Habits",
+    "openNotes": "Open Notes",
+    "openSettings": "Open Settings"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "The app recovered the shell. Reload to restore state.",
+    "reload": "Reload"
+  },
+  "pomodoro": {
+    "modes": {
+      "work": "Focus",
+      "shortBreak": "Short break",
+      "longBreak": "Long break"
+    },
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "skip": "Skip",
+    "focusMode": "Focus mode",
+    "exitFocus": "Exit focus",
+    "noTaskSelected": "No task selected",
+    "sessionPlan": "Session plan",
+    "round": "Round {{round}}",
+    "workMinutes": "Work",
+    "shortBreakMinutes": "Short break",
+    "longBreakMinutes": "Long break",
+    "minutes": "minutes",
+    "longBreakEvery": "Long break every",
+    "autoStartNext": "Auto-start next session",
+    "soundEnabled": "Sound reminders",
+    "recentSessions": "Recent sessions",
+    "completedHistory": "Completed focus history appears here.",
+    "sessionComplete": "Session complete",
+    "sessionFinished": "{{mode}} finished."
+  },
+  "tasks": {
+    "inbox": "Task inbox",
+    "shown": "{{count}} shown",
+    "createTask": "Create a task",
+    "add": "Add",
+    "searchPlaceholder": "Search tasks, notes, tags",
+    "filterActive": "active",
+    "filterCompleted": "completed",
+    "filterAll": "all",
+    "notesPlaceholder": "Notes",
+    "tagsPlaceholder": "tags, separated, by comma",
+    "drag": "Drag",
+    "complete": "Complete",
+    "startTimer": "Start task timer",
+    "currentSession": "Current session",
+    "readyToFocus": "Ready",
+    "enterImmersive": "Immersive",
+    "exitImmersive": "Exit immersive",
+    "immersiveMode": "Immersive focus",
+    "finishSession": "Finish session",
+    "countup": "Count up",
+    "countdown": "Countdown",
+    "targetMinutes": "Target minutes",
+    "targetMinutesBadge": "{{minutes}} min target",
+    "focusedTotal": "{{time}} total",
+    "noiseOff": "No noise",
+    "noiseWhite": "White noise",
+    "noiseRain": "Rain",
+    "noiseBrown": "Brown noise",
+    "delete": "Delete",
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "pomodoros": "{{completed}}/{{estimated}} pomodoros"
+  },
+  "habits": {
+    "daily": "Daily habits",
+    "newHabit": "New habit",
+    "add": "Add",
+    "dayStreak": "{{count}} day streak",
+    "empty": "Add a habit to start tracking streaks."
+  },
+  "notes": {
+    "newNote": "New note",
+    "nothingYet": "_Nothing yet._",
+    "defaultTitle": "Untitled note",
+    "defaultBody": "## Capture thoughts\n\nUse Markdown for meeting notes, plans, and ideas."
+  },
+  "statistics": {
+    "focusHours": "Focus hours",
+    "completedTasks": "Completed tasks",
+    "averageSession": "Average session",
+    "longestStreak": "Longest streak",
+    "focusMinutes": "Focus minutes",
+    "range": {
+      "week": "Week",
+      "month": "Month",
+      "year": "Year"
+    },
+    "rangeDescription": {
+      "week": "Last 7 days",
+      "month": "Last 30 days",
+      "year": "Last 12 months"
+    },
+    "last14Days": "Last 14 days",
+    "heatmap": "Heatmap",
+    "monthlyActivity": "Monthly activity"
+  },
+  "music": {
+    "title": "Now playing",
+    "playing": "Playing",
+    "paused": "Paused",
+    "none": "No music detected",
+    "unknownArtist": "Unknown artist"
+  },
+  "settings": {
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "accent": "Accent HSL",
+    "radius": "Radius",
+    "blurEffects": "Blur effects",
+    "language": "Language",
+    "desktop": "Desktop",
+    "launchOnStartup": "Launch on startup",
+    "hideToTray": "Hide to tray",
+    "alwaysOnTop": "Always on top",
+    "soundReminders": "Sound reminders",
+    "backup": "Backup and restore",
+    "exportSettings": "Export settings",
+    "importSettings": "Import settings",
+    "backupDescription": "Backups include local tasks, sessions, notes, habits, timer preferences, and UI settings.",
+    "keyboard": "Keyboard",
+    "commandPalette": "Command palette",
+    "startPauseTimer": "Start or pause timer",
+    "showApplication": "Show application"
+  },
+  "statusBar": {
+    "idle": "Idle",
+    "running": "Focusing",
+    "paused": "Paused",
+    "tasks": "{{count}} tasks",
+    "ready": "Ready"
+  }
+}
