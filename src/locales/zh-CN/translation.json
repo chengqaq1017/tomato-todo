@@ -82,9 +82,9 @@
     "noiseBrown": "棕噪音",
     "delete": "删除",
     "priority": {
-      "low": "低",
-      "medium": "中",
-      "high": "高"
+      "low": "稍后",
+      "medium": "普通",
+      "high": "紧急"
     },
     "pomodoros": "{{completed}}/{{estimated}} 个番茄"
   },

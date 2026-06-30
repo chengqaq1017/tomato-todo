@@ -82,9 +82,9 @@
     "noiseBrown": "Brown noise",
     "delete": "Delete",
     "priority": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High"
+      "low": "Later",
+      "medium": "Normal",
+      "high": "Urgent"
     },
     "pomodoros": "{{completed}}/{{estimated}} pomodoros"
   },
