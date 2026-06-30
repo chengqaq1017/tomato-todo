@@ -6,6 +6,7 @@ import type {
   PomodoroSession,
   PomodoroSettings,
   Task,
+  TaskTimerMode,
   TimerMode,
   TimerStatus,
 } from "../types/domain";
@@ -33,7 +34,7 @@ interface ProductivityState {
   skipTimer: () => void;
   setTimerMode: (mode: TimerMode) => void;
   updatePomodoro: (settings: Partial<PomodoroSettings>) => void;
-  addTask: (title: string) => void;
+  addTask: (title: string, targetSeconds?: number, timerMode?: TaskTimerMode) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   reorderTasks: (activeId: string, overId: string) => void;
@@ -97,15 +98,23 @@ export const useProductivityStore = create<ProductivityState>()(
         },
       ],
       startTimer: (taskId) =>
-        set((state) => ({
-          timer: {
-            ...state.timer,
-            status: "running",
-            startedAt: Date.now(),
-            accumulatedSeconds: 0,
-            activeTaskId: taskId,
-          },
-        })),
+        set((state) => {
+          const continuingSameTask =
+            state.timer.status === "paused" &&
+            state.timer.activeTaskId === taskId &&
+            state.timer.accumulatedSeconds > 0;
+
+          return {
+            timer: {
+              ...state.timer,
+              status: "running",
+              startedAt: Date.now(),
+              pausedAt: undefined,
+              accumulatedSeconds: continuingSameTask ? state.timer.accumulatedSeconds : 0,
+              activeTaskId: taskId,
+            },
+          };
+        }),
       pauseTimer: () =>
         set((state) => {
           if (state.timer.status !== "running" || !state.timer.startedAt) return state;
@@ -117,6 +126,7 @@ export const useProductivityStore = create<ProductivityState>()(
               pausedAt: Date.now(),
               startedAt: undefined,
               accumulatedSeconds: state.timer.accumulatedSeconds + elapsed,
+              activeTaskId: state.timer.activeTaskId,
             },
           };
         }),
@@ -179,9 +189,10 @@ export const useProductivityStore = create<ProductivityState>()(
       setTimerMode: (mode) =>
         set((state) => ({ timer: { ...state.timer, mode, status: "idle", accumulatedSeconds: 0 } })),
       updatePomodoro: (pomodoro) => set((state) => ({ pomodoro: { ...state.pomodoro, ...pomodoro } })),
-      addTask: (title) =>
+      addTask: (title, targetSeconds = defaultTaskTargetSeconds, timerMode = "countdown") =>
         set((state) => {
-          const now = new Date().toISOString();
+          const createdAt = new Date();
+          const now = createdAt.toISOString();
           return {
             tasks: [
               {
@@ -192,11 +203,12 @@ export const useProductivityStore = create<ProductivityState>()(
                 tags: [],
                 estimatedPomodoros: 1,
                 completedPomodoros: 0,
-                timerMode: "countdown",
-                targetSeconds: defaultTaskTargetSeconds,
+                timerMode,
+                targetSeconds,
                 focusedSeconds: 0,
                 completed: false,
                 order: 0,
+                deadline: todayKey(createdAt),
                 createdAt: now,
                 updatedAt: now,
               },

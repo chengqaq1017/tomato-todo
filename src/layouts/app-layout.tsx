@@ -1,16 +1,18 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { BarChart3, CheckSquare, Command, Headphones, NotebookPen, Settings, Sprout } from "lucide-react";
+import { BarChart3, CalendarClock, CheckSquare, Command, Headphones, NotebookPen, Settings, Sprout } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../components/ui/button";
 import { StatusBar } from "../components/status-bar";
 import { useAppStore } from "../stores/app-store";
 import { getNowPlaying, type NowPlaying } from "../services/desktop";
+import { formatLocalDateTime } from "../lib/utils";
 
 export function AppLayout({ children }: { children: ReactNode }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const setCommandOpen = useAppStore((state) => state.setCommandOpen);
+  const [clockNow, setClockNow] = useState(Date.now());
   const [nowPlaying, setNowPlaying] = useState<NowPlaying>({
     isPlaying: false,
     title: "",
@@ -34,6 +36,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         nowPlaying.artist ? ` - ${nowPlaying.artist}` : ""
       }`
     : t("music.none");
+  const clockText = formatLocalDateTime(new Date(clockNow), i18n.language);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +67,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
       window.clearTimeout(first);
       window.clearInterval(id);
     };
+  }, []);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setClockNow(Date.now()), 30_000);
+    return () => window.clearInterval(id);
   }, []);
 
   return (
@@ -111,11 +119,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <span className="truncate">{page.file}</span>
             </div>
             <div
-              className="mx-auto hidden max-w-[48vw] items-center gap-2 truncate px-3 text-xs text-muted-foreground md:flex"
+              className="mx-auto hidden max-w-[38vw] items-center gap-2 truncate px-3 text-xs text-muted-foreground lg:flex"
               title={musicText}
             >
               <Headphones size={14} className={nowPlaying.isPlaying ? "text-primary" : "text-muted-foreground"} />
               <span className="truncate">{musicText}</span>
+            </div>
+            <div className="hidden shrink-0 items-center gap-2 px-3 text-xs text-muted-foreground md:flex" title={clockText}>
+              <CalendarClock size={14} className="text-primary" />
+              <span className="tabular-nums">{clockText}</span>
             </div>
           </div>
           <Button

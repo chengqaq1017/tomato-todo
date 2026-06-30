@@ -73,6 +73,25 @@ describe("resumeTimer", () => {
     expect(timer.startedAt).toBeGreaterThan(0);
     expect(timer.pausedAt).toBeUndefined();
   });
+
+  it("preserves accumulated time when resuming a count-up task", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-30T12:00:00Z"));
+    const { addTask, startTimer, pauseTimer, resumeTimer } = useProductivityStore.getState();
+    addTask("Count up task", 1800, "countup");
+    const taskId = useProductivityStore.getState().tasks[0].id;
+
+    startTimer(taskId);
+    vi.advanceTimersByTime(12_000);
+    pauseTimer();
+    expect(useProductivityStore.getState().timer.accumulatedSeconds).toBe(12);
+
+    vi.advanceTimersByTime(5_000);
+    resumeTimer();
+    expect(useProductivityStore.getState().timer.accumulatedSeconds).toBe(12);
+    expect(useProductivityStore.getState().timer.activeTaskId).toBe(taskId);
+    vi.useRealTimers();
+  });
 });
 
 describe("stopTimer", () => {
@@ -243,6 +262,13 @@ describe("addTask", () => {
     expect(tasks[0].order).toBe(0);
     expect(tasks[1].title).toBe("A");
     expect(tasks[1].order).toBe(1);
+  });
+
+  it("accepts custom target seconds and timer mode", () => {
+    useProductivityStore.getState().addTask("正计时任务", 3600, "countup");
+    const task = useProductivityStore.getState().tasks[0];
+    expect(task.targetSeconds).toBe(3600);
+    expect(task.timerMode).toBe("countup");
   });
 });
 
